@@ -4,13 +4,12 @@ on: [push]
 env:
   CI: true
   ENCRYPTION: sha512
-  MONGODB_URL: mongodb://0.0.0.0:27017/test
-  MYSQL_URL: mysql://root:password@0.0.0.0:3307/test
-  MYSQL_PASS: password
-  MYSQL_PORT: 3307
-  MYSQL_SCHEMA: test
-  MYSQL_TYPE: mariadb
-  MYSQL_USER: root
+  DB_URL: mysql://root:password@0.0.0.0:3307/test
+  DB_PASS: password
+  DB_PORT: 3307
+  DB_SCHEMA: test
+  DB_TYPE: mariadb
+  DB_USER: root
 
 jobs:
   test:
@@ -18,25 +17,20 @@ jobs:
     strategy:
       matrix:
         node-version: [14.x]
-    services:
-      mongo:
-        image: mongo
-        ports:
-          - 27017:27017
     steps:
       - uses: actions/checkout@v1
-      - name: use node.js ${{ matrix.node-version }}
+      - name: Use node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: use mariadb 10
+      - name: Use mariadb 10
         uses: getong/mariadb-action@v1.1
         with:
-          container port: ${{ env.MYSQL_PORT }}
-          host port: ${{ env.MYSQL_PORT }}
-          mysql root password: ${{ env.MYSQL_PASS }}
-          mysql database: ${{ env.MYSQL_SCHEMA }}
-      - name: cache node modules
+          container port: ${{ env.DB_PORT }}
+          host port: ${{ env.DB_PORT }}
+          mysql root password: ${{ env.DB_PASS }}
+          mysql database: ${{ env.DB_SCHEMA }}
+      - name: Cache node modules
         uses: actions/cache@v1
         with:
           path: node_modules
@@ -46,7 +40,7 @@ jobs:
             ${{ runner.OS }}-test-${{ matrix.node-version }}-
             ${{ runner.OS }}-test-
             ${{ runner.OS }}-
-      - name: yarn install
+      - name: Yarn install
         run: yarn
-      - name: test
+      - name: Test
         run: yarn test
